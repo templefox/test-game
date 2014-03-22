@@ -213,9 +213,9 @@ public class GameScreen implements Screen, GestureListener
         if (stateTime > 4)
         {
             stateTime = 0;
-            addEnemyGroup();
+            addEnemyGroup();camera.update();
         }
-        camera.update();
+        
         spriteBatch.setProjectionMatrix(camera.combined);
         player.update();
         for (PlayerBullet bullet : playerBulletList)
