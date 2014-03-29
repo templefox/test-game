@@ -3,20 +3,22 @@ package com.subway.system;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class MetroLine {
-	private LinkedList<MetroEdge> edges = new LinkedList<MetroEdge>();
-	private String name = "";
-	private MetroNode nodeX;
-	private MetroNode nodeY;
+public abstract class MetroLine {
+	protected LinkedList<MetroEdge> edges = new LinkedList<MetroEdge>();
+	protected String name = "";
+	protected MetroNode nodeX;
+	protected MetroNode nodeY;
 	
 	public MetroLine(String name) {
 		this.name = name;
 	}
-	public void add(MetroEdge edge){
+	public void addEdge(MetroEdge edge){
 		if(nodeX == null && nodeY == null){
 			nodeX = edge.getNodeX();
 			nodeY = edge.getNodeY();
 		}else {
+			if(edges.contains(edge))
+				throw new IllegalArgumentException("Should not add one edge twice");
 			if(edge.contain(nodeX)){
 				nodeX = edge.getAnotherNode(nodeX);
 			}else if(edge.contain(nodeY)){

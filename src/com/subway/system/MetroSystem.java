@@ -3,9 +3,9 @@ package com.subway.system;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class MetroSystem {
-	private HashSet<MetroNode> nodes = new HashSet<MetroNode>();
-	private HashSet<MetroLine> lines = new HashSet<MetroLine>();
+public abstract class MetroSystem {
+	protected HashSet<MetroNode> nodes = new HashSet<MetroNode>();
+	protected HashSet<MetroLine> lines = new HashSet<MetroLine>();
 
 	public int adjacent(MetroNode x, MetroNode y) {
 		return x.adjacent(y);
@@ -15,8 +15,8 @@ public class MetroSystem {
 		return x.neighbors();
 	}
 
-	public void addEdge(MetroNode x, MetroNode y, MetroLine line) {
-		x.addEdge(y, line);
+	public void addEdge(MetroEdge edge,MetroNode x, MetroNode y, MetroLine line) {
+		x.addEdge(edge,y, line);
 	}
 
 	public void addNode(MetroNode... node) {
@@ -33,7 +33,7 @@ public class MetroSystem {
 
 	public static void main(String[] args) {
 		
-		MetroSystem system = new MetroSystem();
+		/*MetroSystem system = new MetroSystem();
 		MetroNode a = new MetroNode("A");
 		MetroNode b = new MetroNode("B");
 		MetroNode c = new MetroNode("C");
@@ -52,6 +52,6 @@ public class MetroSystem {
 		system.addEdge(c, a, no2);
 		system.addEdge(d, a, no2);
 		
-		System.out.println("");
+		System.out.println("");*/
 	}
 }

@@ -46,7 +46,7 @@ public class MenuScreen implements Screen {
 	private final float G = 9.8f * 70f;// m/ss to mm/ss.Not accurate gravity
 										// simulation.
 	private final float DELAY_TIME_FACTOR = 0.4f;
-	private final float WAIT_TIME = 1.5f;
+	private final float WAIT_TIME = 0.8f;
 	private final float SWIFT_TIME = 4f;
 	private final int DISPLAY_LINE_NUM = 4;
 	private Image[] passengers = new Image[5];
@@ -70,13 +70,9 @@ public class MenuScreen implements Screen {
 	}
 
 	private void initLines() {
-		Texture t = new Texture(Gdx.files.internal("images/colors.png"));
-		TextureRegion[][] colors = TextureRegion.split(t, 1, 1);
-		for (int i = 0; i < 7; i++) {
-			gameCenter.colors[i] = colors[0][i];
-		}
+		
 		for (int i = DISPLAY_LINE_NUM - 1; i >= 0; i--) {
-			lines[i] = new Image(colors[0][i]);
+			lines[i] = new Image(gameCenter.colors[i]);
 			lines[i].setPosition(8 - i * 2f, 50f - i * 3f);
 
 			lines[i].scale(250, 10);
@@ -86,15 +82,9 @@ public class MenuScreen implements Screen {
 	}
 
 	private void initPassengers() {
-		Texture passengersTexture = new Texture(
-				Gdx.files.internal("images/passengers.png"));
-		TextureRegion textureRegion[][] = TextureRegion.split(
-				passengersTexture, 32, 32);
-		for (int i = 0; i < 5; i++) {
-			gameCenter.passengers[i] = textureRegion[0][i];
-		}
+		
 		for (int i = 0; i < passengers.length; i++) {
-			passengers[i] = new Image(textureRegion[0][i]);
+			passengers[i] = new Image(gameCenter.passengers[i]);
 			passengers[i].setPosition(
 					108 + 33 * i, 65);
 			stage.addActor(passengers[i]);
@@ -178,13 +168,14 @@ public class MenuScreen implements Screen {
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		stage.dispose();
+		bgTexture.dispose();
 	}
 
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+		Gdx.gl.glClearColor(255, 255, 255, 0);
 		if (!onScreenSwift && startButton.isPressed()) {
 			onScreenSwift = true;
 
@@ -228,7 +219,7 @@ public class MenuScreen implements Screen {
 	private void toGameScreen() {
 		AlphaAction alphaAction = new AlphaAction();
 		alphaAction.setAlpha(0);
-		alphaAction.setDuration(1f);
+		alphaAction.setDuration(0.5f);
 		stage.addAction(Actions.sequence(alphaAction, new RunnableAction(){
 
 			@Override

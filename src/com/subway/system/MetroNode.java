@@ -4,17 +4,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-public class MetroNode {
-	private String name;
-	
-	private LinkedList<MetroEdge> edges = new LinkedList<MetroEdge>();
-	
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+public abstract class MetroNode extends Image{
+	protected LinkedList<MetroEdge> edges = new LinkedList<MetroEdge>();
+	protected MetroSystem metroSystem;
 	public LinkedList<MetroEdge> getEdges() {
 		return edges;
 	}
-
-	public MetroNode(String name) {
-		this.name = name;
+	
+	public MetroNode(TextureRegion region,MetroSystem system){
+		super(region);
+		this.metroSystem = system;
 	}
 	
 	public int adjacent(MetroNode y){
@@ -33,8 +35,7 @@ public class MetroNode {
 		return nodes;
 	}
 	
-	public void addEdge(MetroNode y,MetroLine line){
-		MetroEdge edge = new MetroEdge();
+	public void addEdge(MetroEdge edge,MetroNode y,MetroLine line){
 		edge.setNodeX(y);
 		edge.setNodeY(this);
 		edge.setParentLine(line);
@@ -42,9 +43,4 @@ public class MetroNode {
 		edges.add(edge);
 		y.getEdges().add(edge);
 	}
-
-	public String getName() {
-		return name;
-	}
-
 }

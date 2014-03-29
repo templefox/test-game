@@ -1,10 +1,18 @@
 package com.subway.system;
 
-public class MetroEdge {
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+public abstract class MetroEdge extends Image{
 	private MetroNode nodeX;
 	private MetroNode nodeY;
 	private MetroLine parentLine;
 	private int weight = -1;
+	
+	public MetroEdge(TextureRegion region){
+		super(region);
+	}
+	
 	public int getWeight() {
 		return weight;
 	}
@@ -28,7 +36,7 @@ public class MetroEdge {
 	}
 	public void setParentLine(MetroLine parentLine) {
 		this.parentLine = parentLine;
-		parentLine.add(this);
+		parentLine.addEdge(this);
 	}
 	public boolean contain(MetroNode node){
 		return node == nodeX||node == nodeY;
@@ -41,4 +49,18 @@ public class MetroEdge {
 			return nodeX;
 		}
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		MetroEdge edge = (MetroEdge)o;
+		return edge.contain(nodeX)&&edge.contain(nodeY);
+	}
+
+	@Override
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return parentLine.hashCode();
+	}
+	
+	
 }
