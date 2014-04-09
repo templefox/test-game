@@ -12,6 +12,10 @@ public class GameCenter extends Game {
 	public static TextureRegion[] stations = new TextureRegion[5];
 	@Override
 	public void create() {
+		loadPics();
+		setScreen(new GameScreen(this));
+	}
+	private void loadPics() {
 		Texture t = new Texture(Gdx.files.internal("images/colors.png"));
 		TextureRegion[][] colors = TextureRegion.split(t, 1, 1);
 		for (int i = 0; i < 7; i++) {
@@ -31,7 +35,6 @@ public class GameCenter extends Game {
 		for (int i = 0; i < 5; i++) {
 			stations[i]= stationsRegion[0][i]; 
 		}
-		setScreen(new GameScreen(this));
 	}
 	@Override
 	public void render() {

@@ -1,41 +1,26 @@
 package com.subway.model;
 
-import java.util.jar.Attributes.Name;
-
-import android.R.integer;
-import android.util.Log;
-
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.scenes.scene2d.Action;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.actions.Actions;
-import com.badlogic.gdx.scenes.scene2d.actions.AlphaAction;
-import com.badlogic.gdx.scenes.scene2d.actions.DelayAction;
-import com.badlogic.gdx.scenes.scene2d.actions.RepeatAction;
-import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.utils.Pool;
-import com.badlogic.gdx.utils.Pools;
 import com.subway.LogicCore;
-import com.subway.LogicCore.station_type;
 import com.subway.model.station.CircleStation;
 import com.subway.model.station.SquareStation;
-import com.subway.system.MetroNode;
-import com.subway.system.MetroSystem;
 
-public abstract class Station extends MetroNode {
+public abstract class Station extends Image {
 	private final int MAX = 25;
 	private boolean isSelected = false;
 	private LogicCore logicCore;
+	public enum station_type {
+		circle, square, star, triangle, quinquangular
+	};
 
-	public Station(TextureRegion region, LogicCore core,MetroSystem system) {
-		super(region,system);
+	public Station(TextureRegion region, LogicCore core) {
+		super(region);
 		this.addListener(onClick);
 		logicCore = core;
+		setOrigin(getWidth()/2, getHeight()/2);
 	}
 
 	private ClickListener onClick = new ClickListener() {
@@ -67,9 +52,9 @@ public abstract class Station extends MetroNode {
 	public static Station newStation(station_type type, String name, LogicCore core) {
 		switch (type) {
 		case circle:
-			return new CircleStation(name, core,core);
+			return new CircleStation(name, core);
 		case square:
-			return new SquareStation(name, core,core);
+			return new SquareStation(name, core);
 		default:
 			throw new RuntimeException();
 		}
