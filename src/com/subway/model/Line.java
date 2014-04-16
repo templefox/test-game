@@ -26,8 +26,9 @@ public class Line implements MaskFunctor<Station, LinePart> {
 	private LinkedList<LinePart> lineParts = new LinkedList<LinePart>();
 	private List<Viehcle> viehcles = new ArrayList<Viehcle>();
 	private LogicCore logicCore;
-	private Station head;
-	private Station tail;
+	public Station head;
+	public Station tail;
+	private boolean isCycle = false;
 	private UndirectedMaskSubgraph<Station, LinePart> subgraph;
 	private static HashMap<line_type, Line> lines = new HashMap<Line.line_type, Line>(
 			7);
@@ -53,6 +54,9 @@ public class Line implements MaskFunctor<Station, LinePart> {
 	public static Line getOrNewLine(line_type type, LogicCore logicCore) {
 		Line r = lines.get(type);
 		if (r == null) {
+			if (logicCore == null) {
+				throw new IllegalStateException();
+			}
 			switch (type) {
 			case red:
 				r = new Line(GameCenter.colors[0], "RED", logicCore);
@@ -66,6 +70,10 @@ public class Line implements MaskFunctor<Station, LinePart> {
 			lines.put(type, r);
 		}
 		return r;
+	}
+	
+	public static HashMap<line_type, Line> getOldLines(){
+		return lines;
 	}
 
 	public static void dispose() {
@@ -162,6 +170,13 @@ public class Line implements MaskFunctor<Station, LinePart> {
 		//如果找不到则状态错误
 		throw new IllegalStateException();
 	}
-	
+
+	public boolean isCycle() {
+		return isCycle;
+	}
+
+	public void setCycle(boolean isCycle) {
+		this.isCycle = isCycle;
+	}
 	
 }

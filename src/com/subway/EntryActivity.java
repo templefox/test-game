@@ -5,12 +5,11 @@ import android.os.Bundle;
 import com.badlogic.gdx.backends.android.AndroidApplication;
 
 public class EntryActivity extends AndroidApplication{
+	GameCenter gameCenter;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-	
-		
-		
-		initialize(new GameCenter(), true); 
+		gameCenter = new GameCenter();
+		initialize(gameCenter, true); 
 	}
 }

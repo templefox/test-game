@@ -2,40 +2,102 @@ package com.subway;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Camera;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.subway.model.Station.station_type;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.subway.model.Line;
+import com.subway.model.Line.line_type;
+import com.subway.model.Station.Shape_type;
+import com.subway.ui.LineSelector;
 
 public class GameScreen implements Screen {
 	private GameCenter gameCenter;
-	private LogicCore logicCore ;
+	private LogicCore logicCore;
 	private Stage stage;
+	private Screen pauseScreen;
+
+	public static enum Game_state {
+		RUN, PAUSE
+	};
+
+	private Game_state state = Game_state.RUN;
+	public static Skin skin = new Skin(Gdx.files.internal("images/uiskin.json"));
 	public static Label label;
-	public GameScreen(GameCenter gameCenter) {
+
+	public GameScreen(final GameCenter gameCenter) {
 		this.gameCenter = gameCenter;
 		stage = new Stage();
-		logicCore = new LogicCore(gameCenter,stage);
+		pauseScreen = new PauseScreen(logicCore,stage);
+		logicCore = new LogicCore(gameCenter, stage);
+		logicCore.setSelectedLine(Line.getOrNewLine(line_type.red, logicCore));
+		Line.getOrNewLine(line_type.orange, logicCore);
+
 		Gdx.input.setInputProcessor(stage);
-		
+
 		Skin skin = new Skin(Gdx.files.internal("images/uiskin.json"));
-		label = new Label("xxx", skin);
-		label.setPosition(10, stage.getHeight()-label.getWidth());
+		label = new Label("xx", skin);
+		label.setPosition(10, stage.getHeight() - label.getHeight());
+		label.setColor(Color.BLACK);
 		stage.addActor(label);
-		
-		logicCore.createStation(station_type.square,100,100);
-		logicCore.createStation(station_type.circle, 400, 200);
-		logicCore.createStation(station_type.square, 600, 100);
-		logicCore.createStation(station_type.circle, 420, 100);
+
+		LineSelector lineSelector = new LineSelector(logicCore);
+		lineSelector.setSelectedLine(line_type.red);
+		lineSelector.setPosition(stage.getWidth() - lineSelector.getWidth(),
+				stage.getHeight() - lineSelector.getHeight());
+		// lineSelector.setPosition(stage.getWidth()-lineSelector.getWidth(),
+		// stage.getHeight()-lineSelector.getHeight());
+		lineSelector.addToStage(stage);
+
+		/*
+		 * VerticalGroup verticalGroup = new VerticalGroup(); for(int i=
+		 * 0;i<5;i++){ Image image = new Image(GameCenter.stations[i]);
+		 * verticalGroup.addActor(image); } stage.addActor(verticalGroup);
+		 * verticalGroup.setPosition(200, 200);
+		 */
+
+		logicCore.createStation(Shape_type.square, 200, 200);
+		logicCore.createStation(Shape_type.circle, 400, 200);
+		logicCore.createStation(Shape_type.square, 600, 100);
+		logicCore.createStation(Shape_type.circle, 420, 100);
+
+		TextButton textButton = new TextButton("pause", skin);
+		textButton.setPosition(stage.getWidth() - textButton.getWidth() - 10,
+				10);
+		textButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				state = Game_state.PAUSE;
+				gameCenter.setScreen(pauseScreen);
+			}
+		});
+		stage.addActor(textButton);
 	}
 
 	@Override
 	public void render(float delta) {
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		Gdx.gl.glClearColor(255, 255, 255, 0);
-		stage.act(delta);
-		stage.draw();
+
+		switch (state) {
+		case RUN:
+			logicCore.update(delta);
+			stage.act(delta);
+			stage.draw();
+			break;
+		case PAUSE:
+			label.setText("state pause");
+			stage.draw();
+			
+			break;
+		default:
+			break;
+		}
 	}
 
 	@Override

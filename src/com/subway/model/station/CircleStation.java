@@ -9,7 +9,13 @@ public class CircleStation extends Station {
 
 	public CircleStation(String name, LogicCore core) {
 		super(GameCenter.stations[0], core);
-		setName(name+"#circle");
+		image.setName(name+"#circle");
+		type = Shape_type.circle;
 	}
+	@Override
+	public String toString() {
+		return "("+image.getX()+","+image.getY()+")"+"circle";
+	}
+
 
 }

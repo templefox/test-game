@@ -7,18 +7,20 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class GameCenter extends Game {
-	public static TextureRegion[] colors = new TextureRegion[7];
+	public static TextureRegion[] colors = new TextureRegion[9];
 	public static TextureRegion[] passengers = new TextureRegion[5];
 	public static TextureRegion[] stations = new TextureRegion[5];
+	private GameScreen gameScreen;
 	@Override
 	public void create() {
 		loadPics();
-		setScreen(new GameScreen(this));
+		gameScreen = new GameScreen(this);
+		setScreen(gameScreen);
 	}
 	private void loadPics() {
 		Texture t = new Texture(Gdx.files.internal("images/colors.png"));
 		TextureRegion[][] colors = TextureRegion.split(t, 1, 1);
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 9; i++) {
 			this.colors[i] = colors[0][i];
 		}
 		

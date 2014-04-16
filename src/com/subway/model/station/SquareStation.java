@@ -9,7 +9,13 @@ public class SquareStation extends Station {
 
 	public SquareStation(String name, LogicCore core) {
 		super(GameCenter.stations[2], core);
-		setName(name+"#square");
+		image.setName(name+"#square");
+		type = Shape_type.square;
+	}
+
+	@Override
+	public String toString() {
+		return "("+image.getX()+","+image.getY()+")"+"square";
 	}
 
 }
