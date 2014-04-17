@@ -11,7 +11,11 @@ import org.jgrapht.traverse.ClosestFirstIterator;
 
 import android.view.View;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.subway.GameScreen;
 import com.subway.LogicCore;
@@ -37,7 +41,15 @@ public abstract class Passenger implements Observer {
 		startStation = station;
 		this.logicCore = core;
 		this.type = type;
+		image.setColor(Color.GRAY);
 		image.setOrigin(image.getWidth() / 2, image.getHeight() / 2);
+		
+		image.addAction(Actions.sequence(Actions.color(Color.RED, 40), new RunnableAction(){
+
+			@Override
+			public void run() {
+				logicCore.setLose();
+			}}));
 	}
 
 	/**
@@ -67,7 +79,7 @@ public abstract class Passenger implements Observer {
 			if (viehcleData.current == destinationStation) {
 				dealReachDestination(viehcle);
 				viehcleData.numToLoad++;
-			} else if (viehcleData.linePart != nextLinePart) {
+			} else if (!viehcleData.linePart.equals(nextLinePart)) {
 				// 2.换
 				dealUnloadingPassenger(viehcle, viehcleData.current);
 				this.currentStation = viehcleData.current;
@@ -88,13 +100,18 @@ public abstract class Passenger implements Observer {
 				}
 			}
 			// GameScreen.label.setText(String.valueOf(routine));
+			//检查车是否有空
+			if (!viehcle.hasEmptyPosition()) {
+				return;
+			}
+			
 			// 检查来车是否符合路径
 
 			if (nextLinePart != null || routineIterator.hasNext()) {
 				if (nextLinePart == null) {
 					nextLinePart = routineIterator.next();
 				}
-				if (nextLinePart == viehcleData.linePart) {
+				if (nextLinePart.equals(viehcleData.linePart)) {
 					// GameScreen.label.setText("Try to up:"+String.valueOf(nextLinePart));
 					// synchronized (viehcle) {
 					dealLoading(currentStation, viehcle);

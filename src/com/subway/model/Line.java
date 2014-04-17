@@ -12,6 +12,7 @@ import org.jgrapht.graph.MaskFunctor;
 import org.jgrapht.graph.UndirectedMaskSubgraph;
 
 import android.R.integer;
+import android.annotation.SuppressLint;
 import android.nfc.NfcAdapter.CreateBeamUrisCallback;
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -154,8 +155,11 @@ public class Line implements MaskFunctor<Station, LinePart> {
 		return lineParts;
 	}
 
+	@SuppressLint("NewApi")
 	public LinePart nextEdge(LinePart nextLinePart, boolean inverse) {
-		//正序，返回下一个edge，否则返回上一个edge,若没有（到底）则返回null
+		//正序，返回下一个edge，否则返回上一个edge,若没有（到底）判断是否环路，否则返回null，是这返回头或尾
+		
+		
 		Iterator<LinePart> iterator = inverse?lineParts.descendingIterator():lineParts.iterator(); 
 		for (; iterator.hasNext();) {
 			LinePart part = iterator.next();
@@ -163,7 +167,13 @@ public class Line implements MaskFunctor<Station, LinePart> {
 				if (iterator.hasNext()) {
 					return iterator.next();					
 				}else {
-					return null;
+					if (isCycle()&&!inverse) {
+						return lineParts.getFirst();
+					}else if(isCycle()&&inverse){
+						return lineParts.getLast();
+					}else {
+						return null;
+					}
 				}
 			}
 		}

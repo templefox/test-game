@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 import android.R.integer;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Group;
 import com.badlogic.gdx.scenes.scene2d.actions.DelayAction;
 import com.badlogic.gdx.scenes.scene2d.actions.MoveByAction;
@@ -29,12 +30,13 @@ public class Viehcle extends Observable {
 	private ViehcleData data;
 	private LinePart nextLinePart;
 	private HashSet<Passenger> passengers = new HashSet<Passenger>();
+	public final static int MAX_PASSENGERS = 9;
 	private boolean inverse = false;
 
 	public Viehcle(Line line, Station station) {
 		image = new Group();
-		image_v = new Image(GameCenter.stations[2]);
-
+		image_v = new Image(GameCenter.viecleTexture);
+		image_v.setColor(Color.BLACK);
 		this.line = line;
 		this.logicCore = line.getLogicCore();
 		fromStation = station;
@@ -51,10 +53,11 @@ public class Viehcle extends Observable {
 
 		float theta = nextLinePart.image.getRotation();
 		image_v.setPosition(nextLinePart.image.getX() - image_v.getWidth() / 2,
-				nextLinePart.image.getY() - image_v.getHeight() / 2);
+				nextLinePart.image.getY() - image_v.getHeight() / 2
+						+ LinePart.THICK/2);
 		image.setOrigin(image_v.getX() + image_v.getWidth() / 2, image_v.getY()
 				+ image_v.getHeight() / 2);
-		image_v.setScale(scaleX, scaleY);
+		//image_v.setScale(scaleX, scaleY);
 		GameScreen.label.setText(image.getOriginX() + " " + image.getOriginY());
 		image.setRotation(theta);
 		logicCore.addViecleToStage(this);
@@ -130,12 +133,12 @@ public class Viehcle extends Observable {
 
 	}
 
-	public void loadPassengers(Passenger passenger)  {		
+	public void loadPassengers(Passenger passenger) {
 		passengers.add(passenger);
 		rePositionPassengers();
 	}
-	
-	public boolean contains(Passenger passenger){
+
+	public boolean contains(Passenger passenger) {
 		return passengers.contains(passenger);
 	}
 
@@ -144,20 +147,24 @@ public class Viehcle extends Observable {
 		passenger.image.remove();
 		rePositionPassengers();
 	}
-	
-	private void rePositionPassengers(){
+
+	private void rePositionPassengers() {
 		int i = 0;
-		for (Iterator iterator = passengers.iterator(); iterator.hasNext();i++) {
+		for (Iterator iterator = passengers.iterator(); iterator.hasNext(); i++) {
 			Passenger passenger = (Passenger) iterator.next();
 			int offset = i % 5;
 			int h = i / 5;
 			passenger.image.setPosition(
-					image_v.getX() + image_v.getWidth() * (1 - image_v.getScaleX())
-					/ 2 + offset * passenger.image.getWidth(),
-					image_v.getY() + image_v.getHeight()
-					* (1 + image_v.getScaleY()) / 2 + h
-					* passenger.image.getHeight());
-			image.addActor(passenger.image);	
+					image_v.getX() + image_v.getWidth()
+							* (1 - image_v.getScaleX()) / 2 + offset
+							* passenger.image.getWidth(), image_v.getY()
+							+ image_v.getHeight() * (1 + image_v.getScaleY())
+							/ 2 + h * passenger.image.getHeight());
+			image.addActor(passenger.image);
 		}
+	}
+	
+	public boolean hasEmptyPosition(){
+		return passengers.size()<MAX_PASSENGERS;
 	}
 }

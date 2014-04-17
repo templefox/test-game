@@ -10,6 +10,7 @@ public class GameCenter extends Game {
 	public static TextureRegion[] colors = new TextureRegion[9];
 	public static TextureRegion[] passengers = new TextureRegion[5];
 	public static TextureRegion[] stations = new TextureRegion[5];
+	public static Texture viecleTexture;
 	private GameScreen gameScreen;
 	@Override
 	public void create() {
@@ -37,6 +38,8 @@ public class GameCenter extends Game {
 		for (int i = 0; i < 5; i++) {
 			stations[i]= stationsRegion[0][i]; 
 		}
+		
+		viecleTexture = new Texture(Gdx.files.internal("images/viehcle.png"));
 	}
 	@Override
 	public void render() {

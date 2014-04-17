@@ -67,8 +67,8 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 		//每次更新，每个车站有一定概率生成一个乘客
 		//有一定概率生成一个新车站
 		update_count+=delta;
-		if(update_count<5) return;
-		else update_count-=5;
+		if(update_count<6) return;
+		else update_count-=6;
 		
 		for (Station station : vertexSet()) {
 			Set<Shape_type> set = new HashSet<Station.Shape_type>(shape_types);
@@ -131,7 +131,7 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 					@Override
 					public void clicked(InputEvent event, float x, float y) {
 						// 取消
-						part.image.remove();
+						part.remove();
 						dialog.remove();
 					}
 				});
@@ -159,6 +159,13 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 	 */
 	private LinePart PseudoConnect(Station s1, Station s2, Line line)
 			throws CannotConnectException {
+		if (s1.image.getX()>s2.image.getX()||s2.image.getY()>s1.image.getY()) {
+			Station temp = s1;
+			s1 = s2;
+			s2 = temp;
+		}
+		
+		
 		LinePart linePart = new LinePart(line, "a", this, s1, s2);
 		linePart.image.addAction(BlinkAction.pool.obtain());
 		stage.addActor(linePart.image);
@@ -182,6 +189,11 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 	
 	public void drawPassagerToStation(Passenger passenger,Station station){
 		stage.addActor(passenger.image);
+	}
+	
+	public void setLose(){
+		gameCenter.setScreen(new MenuScreen(gameCenter));
+		dispose();
 	}
 }
 

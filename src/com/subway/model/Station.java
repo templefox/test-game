@@ -84,11 +84,11 @@ public abstract class Station {
 	}
 
 	public void generatePassenger(Shape_type[] shape_types) {
-		if (passengers.size() > 1) {
+		if (passengers.size() > 15) {
 			return;
 		}
 		Passenger passenger = null;
-		if (MathUtils.randomBoolean(0.7f)) {
+		if (MathUtils.randomBoolean(0.6f)) {
 			// do
 			int i = MathUtils.random(0, shape_types.length - 1);
 			Shape_type type = shape_types[i];
@@ -98,9 +98,8 @@ public abstract class Station {
 				passenger = new CirclePassenger(this, logicCore);
 				break;
 			case square:
-				return;
-				// passenger = new SquarePasenger(this,logicCore);
-				// break;
+				passenger = new SquarePasenger(this,logicCore);
+				break;
 			default:
 				throw new IllegalStateException();
 			}
@@ -127,8 +126,6 @@ public abstract class Station {
 	}
 
 	public void loadPassenger(Passenger passenger) {
-		int offset = passengers.size() % 5;
-		int h = passengers.size() / 5;
 		passengers.add(passenger);
 		rePositonPassenger();
 		logicCore.drawPassagerToStation(passenger, this);

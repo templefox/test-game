@@ -1,6 +1,9 @@
 package com.subway.model;
 
 import java.net.ConnectException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.SortedSet;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -29,6 +32,7 @@ public class LinePart extends DefaultWeightedEdge {
 	public PointF from;
 	public PointF to;
 	public Image image;
+	public static final int THICK = 8;
 
 	public LinePart(Line line, String name, LogicCore core, Station s1,
 			Station s2) throws CannotConnectException {
@@ -54,8 +58,8 @@ public class LinePart extends DefaultWeightedEdge {
 			return true;
 		} else if (((line.head == s1 && line.tail == s2) || (line.head == s2 && line.tail == s1))
 				&& line.getLineParts().size() > 1) {
-			line.setCycle(true);
-			return true;
+			//line.setCycle(true);
+			return false;
 		}else if ((line.containStation(s1)&&(s1==line.head||s1==line.tail)&&!line.containStation(s2))
 				||(line.containStation(s2)&&(s2==line.head||s2==line.tail)&&!line.containStation(s1)))
 			return true;
@@ -65,15 +69,37 @@ public class LinePart extends DefaultWeightedEdge {
 	}
 
 	private void drawConnectLine(Station s1, Station s2) {
+		Set<LinePart> edges = logicCore.edgesOf(s1);
+		
+		HashSet<LinePart> sameEdges = new HashSet<LinePart>();
+		for (LinePart linePart : edges) {
+			if (linePart.equals(this)) {
+				sameEdges.add(linePart);
+			}
+		}
+		
+		int thick = THICK/(sameEdges.size()+1);
+		
+		
 		from = new PointF(s1.image.getX() + s1.image.getOriginX(), s1.image.getY()
 				+ s1.image.getOriginY());
 		to = new PointF(s2.image.getX() + s2.image.getOriginX(), s2.image.getY()
 				+ s2.image.getOriginY());
-		image.setPosition(from.x, from.y);
+		
+		int i = 1;
+		for (LinePart linePart : sameEdges) {
+			//TODO
+				linePart.image.setPosition(from.x, from.y+THICK/2-thick*i);
+				linePart.image.setScaleY(thick);
+				i++;				
+		}
+		
+		
+		image.setPosition(from.x, from.y+THICK/2-thick*i);
 		float theta = MathUtils.atan2(to.y - from.y, to.x - from.x);
 		float length = (s2.image.getX() - s1.image.getX()) / MathUtils.cos(theta);
 		image.setRotation(theta * 180 / MathUtils.PI);
-		image.setScale(length, 4);
+		image.setScale(length, thick);
 		this.length = length;
 	}
 
@@ -115,4 +141,41 @@ public class LinePart extends DefaultWeightedEdge {
 		return s1.image.getName() + "-->" + s2.image.getName();
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof LinePart) {
+			LinePart oo = (LinePart)o;
+			boolean result = false;
+			if ((oo.s1==s1&&oo.s2==s2)||(oo.s1==s2&&oo.s2==s1)) {
+				return true;
+			}
+			
+		}
+		
+		return false;
+	}
+
+	public void remove(){
+		Set<LinePart> edges = logicCore.edgesOf(s1);
+
+		HashSet<LinePart> sameEdges = new HashSet<LinePart>();
+		for (LinePart linePart : edges) {
+			if (linePart.equals(this)) {
+				sameEdges.add(linePart);
+			}
+		}
+		
+		if (!sameEdges.isEmpty()) {
+			int thick = THICK/sameEdges.size();
+			int i = 1;
+			for (LinePart linePart : sameEdges) {
+				linePart.image.setPosition(from.x, from.y+THICK/2-thick*i);
+				linePart.image.setScaleY(thick);
+				i++;		
+			}
+		}
+		
+		image.remove();
+	}
+	
 }
