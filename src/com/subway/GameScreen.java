@@ -11,6 +11,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.subway.GameScreen.Game_state;
+import com.subway.gamemode.DefaultGameMode;
 import com.subway.model.Line;
 import com.subway.model.Line.line_type;
 import com.subway.model.Station.Shape_type;
@@ -33,10 +35,9 @@ public class GameScreen implements Screen {
 	public GameScreen(final GameCenter gameCenter) {
 		this.gameCenter = gameCenter;
 		stage = new Stage();
-		pauseScreen = new PauseScreen(logicCore,stage);
-		logicCore = new LogicCore(gameCenter, stage);
-		logicCore.setSelectedLine(Line.getOrNewLine(line_type.red, logicCore));
-		Line.getOrNewLine(line_type.orange, logicCore);
+		pauseScreen = new PauseScreen(logicCore, stage);
+		logicCore = new LogicCore(gameCenter, stage, new DefaultGameMode());
+		logicCore.getGameMode().initLines(logicCore);
 
 		Gdx.input.setInputProcessor(stage);
 
@@ -61,10 +62,7 @@ public class GameScreen implements Screen {
 		 * verticalGroup.setPosition(200, 200);
 		 */
 
-		logicCore.createStation(Shape_type.square, 200, 200);
-		logicCore.createStation(Shape_type.circle, 400, 200);
-		logicCore.createStation(Shape_type.square, 600, 100);
-		logicCore.createStation(Shape_type.circle, 420, 100);
+		
 
 		TextButton textButton = new TextButton("pause", skin);
 		textButton.setPosition(stage.getWidth() - textButton.getWidth() - 10,
@@ -91,9 +89,8 @@ public class GameScreen implements Screen {
 			stage.draw();
 			break;
 		case PAUSE:
-			label.setText("state pause");
 			stage.draw();
-			
+
 			break;
 		default:
 			break;
@@ -133,6 +130,10 @@ public class GameScreen implements Screen {
 	@Override
 	public void dispose() {
 		logicCore.dispose();
+	}
+
+	public void setState(Game_state state) {
+		this.state = state;
 	}
 
 }

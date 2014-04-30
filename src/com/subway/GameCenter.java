@@ -28,13 +28,13 @@ public class GameCenter extends Game {
 		Texture passengersTexture = new Texture(
 				Gdx.files.internal("images/passengers.png"));
 		TextureRegion textureRegion[][] = TextureRegion.split(
-				passengersTexture, 32, 32);
+				passengersTexture, 16, 16);
 		for (int i = 0; i < 5; i++) {
 			this.passengers[i] = textureRegion[0][i];
 		}
 		
 		Texture stationTexture = new Texture(Gdx.files.internal("images/stations.png"));
-		TextureRegion stationsRegion[][] = TextureRegion.split(stationTexture, 128, 128);
+		TextureRegion stationsRegion[][] = TextureRegion.split(stationTexture, 64, 64);
 		for (int i = 0; i < 5; i++) {
 			stations[i]= stationsRegion[0][i]; 
 		}

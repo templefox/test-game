@@ -7,6 +7,7 @@ import org.jgrapht.experimental.permutation.CollectionPermutationIter;
 import org.jgrapht.graph.WeightedMultigraph;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Disposable;
+import com.subway.gamemode.GameMode;
 import com.subway.model.BlinkAction;
 import com.subway.model.CannotConnectException;
 import com.subway.model.Line;
@@ -39,41 +41,60 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 	private Stage stage;
 	private Station selectedStation;
 	private Line selectedLine;
+	private GameMode gameMode;
 	private Set<Shape_type> shape_types = new HashSet<Station.Shape_type>();
 
 	public void setSelectedLine(Line selectedLine) {
 		this.selectedLine = selectedLine;
 	}
 
-	public LogicCore(GameCenter gameCenter, Stage stage) {
+	public LogicCore(GameCenter gameCenter, Stage stage, GameMode gameMode) {
 		super(LinePart.class);
 
 		this.gameCenter = gameCenter;
 		this.stage = stage;
+		this.gameMode = gameMode;
+		gameMode.setProperties(this);
 	}
 
-	public void createStation(Shape_type type, int x, int y) {
+	public boolean createStation(Shape_type type, int x, int y) {
+		Set<Station> set = vertexSet();
+		for (Station station : set) {
+			if ((x >= (station.image.getX() - station.image.getWidth()))
+					&& (x <= (station.image.getX() + station.image.getWidth()))
+					&& (y >= (station.image.getY() - station.image.getHeight()))
+					&& (y <= (station.image.getY() + station.image.getHeight()))) {
+				return false;
+			}
+		}
+
 		shape_types.add(type);
 		Station station = Station.newStation(type, "(" + x + "," + y + ")",
 				this);
+
 		station.image.setPosition(x, y);
 		stage.addActor(station.image);
 		station.image.setZIndex(3);
 		addVertex(station);
+		return true;
 	}
-	
+
 	private float update_count = 0;
-	public synchronized void update(float delta){
-		//每次更新，每个车站有一定概率生成一个乘客
-		//有一定概率生成一个新车站
-		update_count+=delta;
-		if(update_count<6) return;
-		else update_count-=6;
-		
+
+	public synchronized void update(float delta) {
+		// 每次更新，每个车站有一定概率生成一个乘客
+		// 有一定概率生成一个新车站
+		gameMode.update(delta, this);
+		update_count += delta;
+		if (update_count < 8)
+			return;
+		else
+			update_count -=8;
+
 		for (Station station : vertexSet()) {
 			Set<Shape_type> set = new HashSet<Station.Shape_type>(shape_types);
 			set.remove(station.getType());
-			station.generatePassenger(set.toArray(new Shape_type[]{}));
+			station.generatePassenger(set.toArray(new Shape_type[] {}));
 		}
 	}
 
@@ -108,6 +129,9 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 						// 点击确认
 						Color color = part.image.getColor();
 						color.a = 1f;
+						if (part.getLine().isCycle()) {
+							Line.addCycleNum();
+						}
 						part.image.setColor(color);
 						part.image.removeAction(part.image.getActions().peek());
 						part.setLine(part.getLine());
@@ -123,7 +147,8 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 					}
 				});
 
-				TextButton textButton = new TextButton("cancel", GameScreen.skin);
+				TextButton textButton = new TextButton("cancel",
+						GameScreen.skin);
 				textButton.setPosition(80, 19);
 				dialog.addActor(textButton);
 				textButton.addListener(new ClickListener() {
@@ -131,6 +156,9 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 					@Override
 					public void clicked(InputEvent event, float x, float y) {
 						// 取消
+						if (part.getLine().isCycle()) {
+							part.getLine().setCycle(false);
+						}
 						part.remove();
 						dialog.remove();
 					}
@@ -159,13 +187,14 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 	 */
 	private LinePart PseudoConnect(Station s1, Station s2, Line line)
 			throws CannotConnectException {
-		if (s1.image.getX()>s2.image.getX()||s2.image.getY()>s1.image.getY()) {
+		if (s1.image.getX() > s2.image.getX()
+				|| (s1.image.getX() == s2.image.getX() && s1.image.getY() > s2.image
+						.getY())) {
 			Station temp = s1;
 			s1 = s2;
 			s2 = temp;
 		}
-		
-		
+
 		LinePart linePart = new LinePart(line, "a", this, s1, s2);
 		linePart.image.addAction(BlinkAction.pool.obtain());
 		stage.addActor(linePart.image);
@@ -177,7 +206,7 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 		selectedStation = null;
 		selectedLine = null;
 		shape_types.clear();
-		
+
 		stage.dispose();
 		Line.dispose();
 	}
@@ -186,14 +215,22 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 		stage.addActor(viecle.image);
 		viecle.image.setZIndex(10);
 	}
-	
-	public void drawPassagerToStation(Passenger passenger,Station station){
+
+	public void drawPassagerToStation(Passenger passenger, Station station) {
 		stage.addActor(passenger.image);
 	}
-	
-	public void setLose(){
-		gameCenter.setScreen(new MenuScreen(gameCenter));
-		dispose();
+
+	public void setLose() {
+		Screen screen = gameCenter.getScreen();
+		if (screen instanceof GameScreen) {
+			GameScreen gameScreen = (GameScreen)screen;
+			gameScreen.setState(GameScreen.Game_state.PAUSE);
+			GameScreen.label.setText("=====YOU LOSE=======");
+		}
+	}
+
+	public GameMode getGameMode() {
+		return gameMode;
 	}
 }
 

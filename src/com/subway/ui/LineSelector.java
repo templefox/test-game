@@ -76,7 +76,6 @@ public class LineSelector {
 			selectedImage.setColor(color);
 			stage.addActor(group);
 			group.setZIndex(11);
-			GameScreen.label.setText("clicked");
 		}
 	};
 	private LogicCore logicCore;

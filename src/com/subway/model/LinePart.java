@@ -32,6 +32,8 @@ public class LinePart extends DefaultWeightedEdge {
 	public PointF from;
 	public PointF to;
 	public Image image;
+	private float sinTheta;
+	private float cosTheta;
 	public static final int THICK = 8;
 
 	public LinePart(Line line, String name, LogicCore core, Station s1,
@@ -44,62 +46,79 @@ public class LinePart extends DefaultWeightedEdge {
 		this.s1 = s1;
 		this.s2 = s2;
 		if (validation()) {
-			drawConnectLine(s1, s2);			
-		}else {
-			throw new CannotConnectException("Cannot connect "+s1.image.getName()+" "+s2.image.getName());
+			drawConnectLine(s1, s2);
+		} else {
+			throw new CannotConnectException("Cannot connect "
+					+ s1.image.getName() + " " + s2.image.getName());
 		}
 
 	}
 
 	private boolean validation() {
-		if(line.isCycle())
+		if (line.isCycle())
 			return false;
 		if (line.head == null && line.tail == null) {
 			return true;
 		} else if (((line.head == s1 && line.tail == s2) || (line.head == s2 && line.tail == s1))
 				&& line.getLineParts().size() > 1) {
-			//line.setCycle(true);
-			return false;
-		}else if ((line.containStation(s1)&&(s1==line.head||s1==line.tail)&&!line.containStation(s2))
-				||(line.containStation(s2)&&(s2==line.head||s2==line.tail)&&!line.containStation(s1)))
+			if (Line.getCycleNum() >= logicCore.getGameMode().getCycleLimit()) {
+				return false;
+			} else {
+				line.setCycle(true);
+				return true;
+			}
+		} else if ((line.containStation(s1)
+				&& (s1 == line.head || s1 == line.tail) && !line
+					.containStation(s2))
+				|| (line.containStation(s2)
+						&& (s2 == line.head || s2 == line.tail) && !line
+							.containStation(s1)))
 			return true;
-		 else {
+		else {
 			return false;
 		}
 	}
 
 	private void drawConnectLine(Station s1, Station s2) {
 		Set<LinePart> edges = logicCore.edgesOf(s1);
-		
+
 		HashSet<LinePart> sameEdges = new HashSet<LinePart>();
 		for (LinePart linePart : edges) {
 			if (linePart.equals(this)) {
 				sameEdges.add(linePart);
 			}
 		}
-		
-		int thick = THICK/(sameEdges.size()+1);
-		
-		
-		from = new PointF(s1.image.getX() + s1.image.getOriginX(), s1.image.getY()
-				+ s1.image.getOriginY());
-		to = new PointF(s2.image.getX() + s2.image.getOriginX(), s2.image.getY()
-				+ s2.image.getOriginY());
-		
+
+		int thick = THICK / (sameEdges.size() + 1);
+
+		from = new PointF(s1.image.getX() + s1.image.getOriginX(),
+				s1.image.getY() + s1.image.getOriginY());
+		to = new PointF(s2.image.getX() + s2.image.getOriginX(),
+				s2.image.getY() + s2.image.getOriginY());
+		float theta = MathUtils.atan2(to.y - from.y, to.x - from.x);
+
+		float length = (s2.image.getX() - s1.image.getX())
+				/ MathUtils.cos(theta);
+		if (length == 0 || Float.isNaN(length)) {
+			length = s2.image.getY() - s1.image.getY();
+		}
+
+		sinTheta = (to.y - from.y) / length;
+		cosTheta = (to.x - from.x) / length;
+
 		int i = 1;
 		for (LinePart linePart : sameEdges) {
-			//TODO
-				linePart.image.setPosition(from.x, from.y+THICK/2-thick*i);
-				linePart.image.setScaleY(thick);
-				i++;				
+			linePart.image.setPosition(from.x + (THICK / 2 - thick * i)
+					* sinTheta, from.y + (THICK / 2 - thick * i) * cosTheta);
+			linePart.image.setScaleY(thick);
+			i++;
 		}
-		
-		
-		image.setPosition(from.x, from.y+THICK/2-thick*i);
-		float theta = MathUtils.atan2(to.y - from.y, to.x - from.x);
-		float length = (s2.image.getX() - s1.image.getX()) / MathUtils.cos(theta);
-		image.setRotation(theta * 180 / MathUtils.PI);
+
+		image.setPosition(from.x - (THICK / 2 - thick * i) * sinTheta, from.y
+				+ (THICK / 2 - thick * i) * cosTheta);
+
 		image.setScale(length, thick);
+		image.setRotation(theta * 180 / MathUtils.PI);
 		this.length = length;
 	}
 
@@ -144,18 +163,17 @@ public class LinePart extends DefaultWeightedEdge {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof LinePart) {
-			LinePart oo = (LinePart)o;
-			boolean result = false;
-			if ((oo.s1==s1&&oo.s2==s2)||(oo.s1==s2&&oo.s2==s1)) {
+			LinePart oo = (LinePart) o;
+			if ((oo.s1 == s1 && oo.s2 == s2) || (oo.s1 == s2 && oo.s2 == s1)) {
 				return true;
 			}
-			
+
 		}
-		
+
 		return false;
 	}
 
-	public void remove(){
+	public void remove() {
 		Set<LinePart> edges = logicCore.edgesOf(s1);
 
 		HashSet<LinePart> sameEdges = new HashSet<LinePart>();
@@ -164,18 +182,21 @@ public class LinePart extends DefaultWeightedEdge {
 				sameEdges.add(linePart);
 			}
 		}
-		
+
 		if (!sameEdges.isEmpty()) {
-			int thick = THICK/sameEdges.size();
+			int thick = THICK / sameEdges.size();
 			int i = 1;
 			for (LinePart linePart : sameEdges) {
-				linePart.image.setPosition(from.x, from.y+THICK/2-thick*i);
+				linePart.image
+						.setPosition(from.x + (THICK / 2 - thick * i)
+								* sinTheta, from.y + (THICK / 2 - thick * i)
+								* cosTheta);
 				linePart.image.setScaleY(thick);
-				i++;		
+				i++;
 			}
 		}
-		
+
 		image.remove();
 	}
-	
+
 }

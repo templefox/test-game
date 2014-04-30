@@ -44,11 +44,11 @@ public abstract class Passenger implements Observer {
 		image.setColor(Color.GRAY);
 		image.setOrigin(image.getWidth() / 2, image.getHeight() / 2);
 		
-		image.addAction(Actions.sequence(Actions.color(Color.RED, 40), new RunnableAction(){
+		image.addAction(Actions.sequence(Actions.color(Color.RED, 80), new RunnableAction(){
 
 			@Override
 			public void run() {
-				logicCore.setLose();
+				logicCore.getGameMode().onPassagerRed(logicCore);
 			}}));
 	}
 
@@ -84,6 +84,10 @@ public abstract class Passenger implements Observer {
 				dealUnloadingPassenger(viehcle, viehcleData.current);
 				this.currentStation = viehcleData.current;
 				viehcleData.numToLoad++;
+			}else {
+				if (routineIterator.hasNext()) {
+					nextLinePart = routineIterator.next();					
+				}
 			}
 
 		} else if (true) {
@@ -140,14 +144,13 @@ public abstract class Passenger implements Observer {
 					try {
 						Thread.sleep(498);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					viehcle.unloadPassenger(Passenger.this);
+					logicCore.getGameMode().onPassagerToDestination();
 					try {
 						Thread.sleep(498);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -165,7 +168,6 @@ public abstract class Passenger implements Observer {
 					try {
 						Thread.sleep(498);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					viehcle.unloadPassenger(Passenger.this);
@@ -173,7 +175,6 @@ public abstract class Passenger implements Observer {
 					try {
 						Thread.sleep(498);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -191,7 +192,6 @@ public abstract class Passenger implements Observer {
 					try {
 						Thread.sleep(498);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					currentStation.byebyePassenger(Passenger.this);
@@ -200,7 +200,6 @@ public abstract class Passenger implements Observer {
 					try {
 						Thread.sleep(498);
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 

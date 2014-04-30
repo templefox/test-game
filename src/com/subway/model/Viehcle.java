@@ -29,6 +29,7 @@ public class Viehcle extends Observable {
 	private Station fromStation;
 	private ViehcleData data;
 	private LinePart nextLinePart;
+	private static final int pad = 2;
 	private HashSet<Passenger> passengers = new HashSet<Passenger>();
 	public final static int MAX_PASSENGERS = 9;
 	private boolean inverse = false;
@@ -36,7 +37,7 @@ public class Viehcle extends Observable {
 	public Viehcle(Line line, Station station) {
 		image = new Group();
 		image_v = new Image(GameCenter.viecleTexture);
-		image_v.setColor(Color.BLACK);
+		image_v.setColor(line.color);
 		this.line = line;
 		this.logicCore = line.getLogicCore();
 		fromStation = station;
@@ -58,7 +59,6 @@ public class Viehcle extends Observable {
 		image.setOrigin(image_v.getX() + image_v.getWidth() / 2, image_v.getY()
 				+ image_v.getHeight() / 2);
 		//image_v.setScale(scaleX, scaleY);
-		GameScreen.label.setText(image.getOriginX() + " " + image.getOriginY());
 		image.setRotation(theta);
 		logicCore.addViecleToStage(this);
 		SequenceAction action = new SequenceAction();
@@ -134,6 +134,8 @@ public class Viehcle extends Observable {
 	}
 
 	public void loadPassengers(Passenger passenger) {
+		passenger.image.setColor(Color.GRAY);
+		passenger.image.getActions().get(0).restart();
 		passengers.add(passenger);
 		rePositionPassengers();
 	}
@@ -152,14 +154,14 @@ public class Viehcle extends Observable {
 		int i = 0;
 		for (Iterator iterator = passengers.iterator(); iterator.hasNext(); i++) {
 			Passenger passenger = (Passenger) iterator.next();
-			int offset = i % 5;
-			int h = i / 5;
+			int offset = i % 4;
+			int h = i / 4;
 			passenger.image.setPosition(
 					image_v.getX() + image_v.getWidth()
 							* (1 - image_v.getScaleX()) / 2 + offset
-							* passenger.image.getWidth(), image_v.getY()
+							* (passenger.image.getWidth()+pad), image_v.getY()
 							+ image_v.getHeight() * (1 + image_v.getScaleY())
-							/ 2 + h * passenger.image.getHeight());
+							/ 2 + h * (pad+passenger.image.getHeight()));
 			image.addActor(passenger.image);
 		}
 	}

@@ -15,6 +15,7 @@ import android.R.integer;
 import android.annotation.SuppressLint;
 import android.nfc.NfcAdapter.CreateBeamUrisCallback;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.Map;
 import com.subway.GameCenter;
@@ -29,6 +30,7 @@ public class Line implements MaskFunctor<Station, LinePart> {
 	private LogicCore logicCore;
 	public Station head;
 	public Station tail;
+	private static int cycleNum = 0;
 	private boolean isCycle = false;
 	private UndirectedMaskSubgraph<Station, LinePart> subgraph;
 	private static HashMap<line_type, Line> lines = new HashMap<Line.line_type, Line>(
@@ -38,6 +40,8 @@ public class Line implements MaskFunctor<Station, LinePart> {
 		red, orange, yellow, green, blue, indigo, purple
 	}
 	
+	public Color color;
+	
 	
 
 	@Override
@@ -45,9 +49,10 @@ public class Line implements MaskFunctor<Station, LinePart> {
 		return "head:"+head+"("+lineParts.toString()+")"+"tail:"+tail;
 	}
 
-	private Line(TextureRegion region, String name, LogicCore logicCore) {
+	private Line(TextureRegion region, String name, LogicCore logicCore,Color color) {
 		this.region = region;
 		this.logicCore = logicCore;
+		this.color = color;
 		subgraph = new UndirectedMaskSubgraph<Station, LinePart>(logicCore,
 				this);
 	}
@@ -60,10 +65,25 @@ public class Line implements MaskFunctor<Station, LinePart> {
 			}
 			switch (type) {
 			case red:
-				r = new Line(GameCenter.colors[0], "RED", logicCore);
+				r = new Line(GameCenter.colors[0], "RED", logicCore,Color.RED);
 				break;
 			case orange:
-				r = new Line(GameCenter.colors[1], "ORANGE", logicCore);
+				r = new Line(GameCenter.colors[1], "ORANGE", logicCore,Color.ORANGE);
+				break;
+			case yellow:
+				r = new Line(GameCenter.colors[2], "YELLOW", logicCore,Color.YELLOW);
+				break;
+			case green:
+				r = new Line(GameCenter.colors[3], "GREEN", logicCore,Color.GREEN);
+				break;
+			case blue:
+				r = new Line(GameCenter.colors[4], "BLUE", logicCore,Color.BLUE);
+				break;
+			case indigo:
+				r = new Line(GameCenter.colors[5], "INDIGO", logicCore,Color.CYAN);
+				break;
+			case purple:
+				r = new Line(GameCenter.colors[6], "PURPLE", logicCore,Color.MAGENTA);
 				break;
 			default:
 				break;
@@ -187,6 +207,14 @@ public class Line implements MaskFunctor<Station, LinePart> {
 
 	public void setCycle(boolean isCycle) {
 		this.isCycle = isCycle;
+	}
+
+	public static int getCycleNum() {
+		return cycleNum;
+	}
+
+	public static void addCycleNum() {
+		Line.cycleNum+=1;
 	}
 	
 }

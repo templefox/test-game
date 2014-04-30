@@ -20,9 +20,15 @@ import com.subway.GameCenter;
 import com.subway.LogicCore;
 import com.subway.model.Viehcle.ViehcleData;
 import com.subway.model.passenger.CirclePassenger;
+import com.subway.model.passenger.QuinPassenger;
 import com.subway.model.passenger.SquarePasenger;
+import com.subway.model.passenger.StarPassenger;
+import com.subway.model.passenger.TrianglePassenger;
 import com.subway.model.station.CircleStation;
+import com.subway.model.station.QuinStation;
 import com.subway.model.station.SquareStation;
+import com.subway.model.station.StarStation;
+import com.subway.model.station.TriangleStation;
 
 public abstract class Station {
 	public Image image;
@@ -30,6 +36,7 @@ public abstract class Station {
 	private boolean isSelected = false;
 	private LogicCore logicCore;
 	protected Shape_type type;
+	private final static float pad = 2;
 	private List<Passenger> passengers = new ArrayList<Passenger>();
 
 	public static enum Shape_type {
@@ -78,17 +85,28 @@ public abstract class Station {
 			return new CircleStation(name, core);
 		case square:
 			return new SquareStation(name, core);
+		case triangle:
+			return new TriangleStation(name, core);
+		case quinquangular:
+			return new QuinStation(name, core);
+		case star:
+			return new StarStation(name, core);
 		default:
 			throw new RuntimeException();
 		}
 	}
 
 	public void generatePassenger(Shape_type[] shape_types) {
-		if (passengers.size() > 15) {
+		if (passengers.size() > logicCore.getGameMode().getStationLimit()) {
+			logicCore.getGameMode().onStationFull();
 			return;
 		}
+		if (shape_types.length<1) {
+			return;
+		}
+		
 		Passenger passenger = null;
-		if (MathUtils.randomBoolean(0.6f)) {
+		if (MathUtils.randomBoolean(logicCore.getGameMode().genPassangerRate())) {
 			// do
 			int i = MathUtils.random(0, shape_types.length - 1);
 			Shape_type type = shape_types[i];
@@ -99,6 +117,15 @@ public abstract class Station {
 				break;
 			case square:
 				passenger = new SquarePasenger(this,logicCore);
+				break;
+			case star:
+				passenger = new StarPassenger(this,logicCore);
+				break;
+			case quinquangular:
+				passenger = new QuinPassenger(this,logicCore);
+				break;
+			case triangle:
+				passenger = new TrianglePassenger(this,logicCore);
 				break;
 			default:
 				throw new IllegalStateException();
@@ -135,11 +162,11 @@ public abstract class Station {
 		int i = 0;
 		for (Iterator iterator = passengers.iterator(); iterator.hasNext();i++) {
 			Passenger passenger = (Passenger) iterator.next();
-			int offset = i % 5;
-			int h = i / 5;
-			passenger.image.setPosition(image.getX() + passenger.image.getWidth()
+			int offset = i % 4;
+			int h = i / 4;
+			passenger.image.setPosition(image.getX() + (passenger.image.getWidth()+pad)
 					* offset, image.getY() - passenger.image.getHeight()
-					+ passenger.image.getHeight() * h);
+					- (passenger.image.getHeight()+pad) * h);
 		}
 	}
 }
