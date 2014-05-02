@@ -11,6 +11,8 @@ public class GameCenter extends Game {
 	public static TextureRegion[] passengers = new TextureRegion[5];
 	public static TextureRegion[] stations = new TextureRegion[5];
 	public static Texture viecleTexture;
+	public static final float SCREEN_HEIGHT = 480;
+	public static final float SCREEN_WIDTH  = 960;
 	private GameScreen gameScreen;
 	@Override
 	public void create() {

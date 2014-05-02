@@ -49,16 +49,16 @@ public class Viehcle extends Observable {
 	}
 
 	public void startWork() {
-		float scaleX = 0.5f;
-		float scaleY = 0.3f;
 
 		float theta = nextLinePart.image.getRotation();
-		image_v.setPosition(nextLinePart.image.getX() - image_v.getWidth() / 2,
-				nextLinePart.image.getY() - image_v.getHeight() / 2
-						+ LinePart.THICK/2);
+		image_v.setPosition(
+				fromStation.image.getX() + fromStation.image.getWidth() / 2
+						- image_v.getWidth() / 2,
+				fromStation.image.getY() + fromStation.image.getHeight() / 2
+						- image_v.getHeight() / 2);
 		image.setOrigin(image_v.getX() + image_v.getWidth() / 2, image_v.getY()
 				+ image_v.getHeight() / 2);
-		//image_v.setScale(scaleX, scaleY);
+		// image_v.setScale(scaleX, scaleY);
 		image.setRotation(theta);
 		logicCore.addViecleToStage(this);
 		SequenceAction action = new SequenceAction();
@@ -135,7 +135,11 @@ public class Viehcle extends Observable {
 
 	public void loadPassengers(Passenger passenger) {
 		passenger.image.setColor(Color.GRAY);
-		passenger.image.getActions().get(0).restart();
+		try {
+			passenger.image.getActions().get(0).restart();			
+		} catch (IndexOutOfBoundsException e) {
+			GameScreen.label.setText("I won't forgive you!");
+		}
 		passengers.add(passenger);
 		rePositionPassengers();
 	}
@@ -159,14 +163,15 @@ public class Viehcle extends Observable {
 			passenger.image.setPosition(
 					image_v.getX() + image_v.getWidth()
 							* (1 - image_v.getScaleX()) / 2 + offset
-							* (passenger.image.getWidth()+pad), image_v.getY()
-							+ image_v.getHeight() * (1 + image_v.getScaleY())
-							/ 2 + h * (pad+passenger.image.getHeight()));
+							* (passenger.image.getWidth() + pad),
+					image_v.getY() + image_v.getHeight()
+							* (1 + image_v.getScaleY()) / 2 + h
+							* (pad + passenger.image.getHeight()));
 			image.addActor(passenger.image);
 		}
 	}
-	
-	public boolean hasEmptyPosition(){
-		return passengers.size()<MAX_PASSENGERS;
+
+	public boolean hasEmptyPosition() {
+		return passengers.size() < MAX_PASSENGERS;
 	}
 }

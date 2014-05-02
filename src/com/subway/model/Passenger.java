@@ -14,9 +14,11 @@ import android.view.View;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Action;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.actions.Actions;
 import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.subway.GameScreen;
 import com.subway.LogicCore;
 import com.subway.model.Station.Shape_type;
@@ -50,6 +52,33 @@ public abstract class Passenger implements Observer {
 			public void run() {
 				logicCore.getGameMode().onPassagerRed(logicCore);
 			}}));
+		
+		image.addListener(new ClickListener(){
+
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				Info info = Info.instance(Passenger.this);
+				if (!info.isAlive()) {
+					info.start();
+				}
+			}});
+	}
+	
+	static class Info extends Thread{
+		Passenger passenger;
+		static Info info = new Info();
+		private Info() {
+		}
+		public static Info instance(Passenger passenger){
+			 info.passenger = passenger;
+			 return info;
+		}
+		@Override
+		public void run() {
+			while (passenger!=null){
+				GameScreen.label.setText(String.valueOf(passenger.nextLinePart));
+			}
+		}
 	}
 
 	/**

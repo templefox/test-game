@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL10;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -17,6 +18,7 @@ import com.subway.model.Line;
 import com.subway.model.Line.line_type;
 import com.subway.model.Station.Shape_type;
 import com.subway.ui.LineSelector;
+import com.subway.ui.MessageBoard;
 
 public class GameScreen implements Screen {
 	private GameCenter gameCenter;
@@ -35,6 +37,10 @@ public class GameScreen implements Screen {
 	public GameScreen(final GameCenter gameCenter) {
 		this.gameCenter = gameCenter;
 		stage = new Stage();
+		OrthographicCamera camera = (OrthographicCamera) stage.getCamera();
+		camera.zoom = Math.max(
+				GameCenter.SCREEN_HEIGHT / Gdx.graphics.getHeight(),
+				GameCenter.SCREEN_WIDTH / Gdx.graphics.getWidth());
 		pauseScreen = new PauseScreen(logicCore, stage);
 		logicCore = new LogicCore(gameCenter, stage, new DefaultGameMode());
 		logicCore.getGameMode().initLines(logicCore);
@@ -62,8 +68,6 @@ public class GameScreen implements Screen {
 		 * verticalGroup.setPosition(200, 200);
 		 */
 
-		
-
 		TextButton textButton = new TextButton("pause", skin);
 		textButton.setPosition(stage.getWidth() - textButton.getWidth() - 10,
 				10);
@@ -75,6 +79,12 @@ public class GameScreen implements Screen {
 			}
 		});
 		stage.addActor(textButton);
+
+		MessageBoard messageBoard = new MessageBoard();
+		messageBoard.addToStage(stage);
+		messageBoard.setPosition(stage.getWidth()/2, stage.getHeight()-messageBoard.getHeight());
+		messageBoard.appendText("hi", 10);
+		messageBoard.appendText("line2", 999);
 	}
 
 	@Override

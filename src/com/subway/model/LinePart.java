@@ -1,24 +1,12 @@
 package com.subway.model;
 
-import java.net.ConnectException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.SortedSet;
-
 import org.jgrapht.graph.DefaultWeightedEdge;
-
-import android.graphics.Point;
 import android.graphics.PointF;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
-import com.badlogic.gdx.utils.Scaling;
-import com.subway.GameCenter;
 import com.subway.GameScreen;
 import com.subway.LogicCore;
 
@@ -34,7 +22,7 @@ public class LinePart extends DefaultWeightedEdge {
 	public Image image;
 	private float sinTheta;
 	private float cosTheta;
-	public static final int THICK = 8;
+	public static final int THICK = 18;
 
 	public LinePart(Line line, String name, LogicCore core, Station s1,
 			Station s2) throws CannotConnectException {
@@ -88,7 +76,7 @@ public class LinePart extends DefaultWeightedEdge {
 				sameEdges.add(linePart);
 			}
 		}
-
+		
 		int thick = THICK / (sameEdges.size() + 1);
 
 		from = new PointF(s1.image.getX() + s1.image.getOriginX(),
@@ -96,30 +84,34 @@ public class LinePart extends DefaultWeightedEdge {
 		to = new PointF(s2.image.getX() + s2.image.getOriginX(),
 				s2.image.getY() + s2.image.getOriginY());
 		float theta = MathUtils.atan2(to.y - from.y, to.x - from.x);
-
-		float length = (s2.image.getX() - s1.image.getX())
-				/ MathUtils.cos(theta);
-		if (length == 0 || Float.isNaN(length)) {
-			length = s2.image.getY() - s1.image.getY();
+		//让三角函数值保持在0~PI/4,大大提高精确度
+		if (Math.abs(to.x - from.x) > Math.abs(to.y - from.y)) {
+			cosTheta = MathUtils.cos(theta);
+			length = (s2.image.getX() - s1.image.getX()) / cosTheta;
+			sinTheta = (to.y - from.y) / length;
+		} else {
+			sinTheta = MathUtils.sin(theta);
+			length = (s2.image.getY() - s1.image.getY())
+						/ sinTheta;
+			cosTheta = (to.x - from.x) / length;
 		}
 
-		sinTheta = (to.y - from.y) / length;
-		cosTheta = (to.x - from.x) / length;
 
+		//考虑重复线路时的情况
 		int i = 1;
 		for (LinePart linePart : sameEdges) {
-			linePart.image.setPosition(from.x + (THICK / 2 - thick * i)
-					* sinTheta, from.y + (THICK / 2 - thick * i) * cosTheta);
-			linePart.image.setScaleY(thick);
+			adjustPosition(linePart.image, i, thick);
 			i++;
 		}
-
+		adjustPosition(image, i, thick);
+		image.setScaleX(length);
+		image.setRotation(theta * 180 / MathUtils.PI);
+	}
+	
+	private void adjustPosition(Image image,int i,int thick){
 		image.setPosition(from.x - (THICK / 2 - thick * i) * sinTheta, from.y
 				+ (THICK / 2 - thick * i) * cosTheta);
-
-		image.setScale(length, thick);
-		image.setRotation(theta * 180 / MathUtils.PI);
-		this.length = length;
+		image.setScaleY(thick);
 	}
 
 	public float[] getStartPosition() {
@@ -187,15 +179,11 @@ public class LinePart extends DefaultWeightedEdge {
 			int thick = THICK / sameEdges.size();
 			int i = 1;
 			for (LinePart linePart : sameEdges) {
-				linePart.image
-						.setPosition(from.x + (THICK / 2 - thick * i)
-								* sinTheta, from.y + (THICK / 2 - thick * i)
-								* cosTheta);
-				linePart.image.setScaleY(thick);
+				adjustPosition(linePart.image, i, thick);
 				i++;
 			}
 		}
-
+		
 		image.remove();
 	}
 

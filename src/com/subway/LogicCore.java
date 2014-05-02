@@ -225,7 +225,7 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 		if (screen instanceof GameScreen) {
 			GameScreen gameScreen = (GameScreen)screen;
 			gameScreen.setState(GameScreen.Game_state.PAUSE);
-			GameScreen.label.setText("=====YOU LOSE=======");
+			//GameScreen.label.setText("=====YOU LOSE=======");
 		}
 	}
 

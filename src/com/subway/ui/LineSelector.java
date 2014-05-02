@@ -27,7 +27,7 @@ import com.subway.LogicCore;
 import com.subway.model.Line;
 import com.subway.model.Line.line_type;
 
-public class LineSelector {
+public class LineSelector implements Ui {
 	private VerticalGroup group = new VerticalGroup();
 	private Image selectedImage = new Image();
 	private float padTop = 10f;
@@ -96,11 +96,13 @@ public class LineSelector {
 		selectedImage.setAlign(Align.center);
 	}
 
+	@Override
 	public void setPosition(float x, float y) {
 		selectedImage.setPosition(x - padRight, y - padTop);
 		group.setPosition(x-selectedImage.getWidth()*0.66f-padRight, y - padTop);
 	}
 
+	@Override
 	public void addToStage(Stage stage) {
 
 		stage.addActor(selectedImage);
@@ -108,10 +110,12 @@ public class LineSelector {
 		this.stage = stage;
 	}
 
+	@Override
 	public float getHeight() {
 		return Math.max(group.getHeight(), selectedImage.getHeight());
 	}
 
+	@Override
 	public float getWidth() {
 		return Math.max(group.getWidth(), selectedImage.getWidth());
 	}
