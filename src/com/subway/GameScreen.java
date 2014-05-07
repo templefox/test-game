@@ -1,5 +1,7 @@
 package com.subway;
 
+import android.util.Log;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Camera;
@@ -33,14 +35,18 @@ public class GameScreen implements Screen {
 	private Game_state state = Game_state.RUN;
 	public static Skin skin = new Skin(Gdx.files.internal("images/uiskin.json"));
 	public static Label label;
+	public static MessageBoard messageBoard;
 
 	public GameScreen(final GameCenter gameCenter) {
 		this.gameCenter = gameCenter;
 		stage = new Stage();
 		OrthographicCamera camera = (OrthographicCamera) stage.getCamera();
+		camera.position.set(GameCenter.SCREEN_WIDTH / 2,
+				GameCenter.SCREEN_HEIGHT / 2, 0);
 		camera.zoom = Math.max(
 				GameCenter.SCREEN_HEIGHT / Gdx.graphics.getHeight(),
 				GameCenter.SCREEN_WIDTH / Gdx.graphics.getWidth());
+		Log.v("aaa", Float.toString(stage.getHeight()));
 		pauseScreen = new PauseScreen(logicCore, stage);
 		logicCore = new LogicCore(gameCenter, stage, new DefaultGameMode());
 		logicCore.getGameMode().initLines(logicCore);
@@ -49,14 +55,15 @@ public class GameScreen implements Screen {
 
 		Skin skin = new Skin(Gdx.files.internal("images/uiskin.json"));
 		label = new Label("xx", skin);
-		label.setPosition(10, stage.getHeight() - label.getHeight());
+		label.setPosition(10, GameCenter.SCREEN_HEIGHT - label.getHeight());
 		label.setColor(Color.BLACK);
 		stage.addActor(label);
 
 		LineSelector lineSelector = new LineSelector(logicCore);
 		lineSelector.setSelectedLine(line_type.red);
-		lineSelector.setPosition(stage.getWidth() - lineSelector.getWidth(),
-				stage.getHeight() - lineSelector.getHeight());
+		lineSelector.setPosition(
+				GameCenter.SCREEN_WIDTH - lineSelector.getWidth(),
+				GameCenter.SCREEN_HEIGHT - lineSelector.getHeight());
 		// lineSelector.setPosition(stage.getWidth()-lineSelector.getWidth(),
 		// stage.getHeight()-lineSelector.getHeight());
 		lineSelector.addToStage(stage);
@@ -69,8 +76,8 @@ public class GameScreen implements Screen {
 		 */
 
 		TextButton textButton = new TextButton("pause", skin);
-		textButton.setPosition(stage.getWidth() - textButton.getWidth() - 10,
-				10);
+		textButton.setPosition(GameCenter.SCREEN_WIDTH - textButton.getWidth()
+				- 10, 10);
 		textButton.addListener(new ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -80,9 +87,10 @@ public class GameScreen implements Screen {
 		});
 		stage.addActor(textButton);
 
-		MessageBoard messageBoard = new MessageBoard();
+		messageBoard = new MessageBoard();
 		messageBoard.addToStage(stage);
-		messageBoard.setPosition(stage.getWidth()/2, stage.getHeight()-messageBoard.getHeight());
+		messageBoard.setPosition(GameCenter.SCREEN_WIDTH / 2,
+				GameCenter.SCREEN_HEIGHT - messageBoard.getHeight());
 		messageBoard.appendText("hi", 10);
 		messageBoard.appendText("line2", 999);
 	}
@@ -95,8 +103,15 @@ public class GameScreen implements Screen {
 		switch (state) {
 		case RUN:
 			logicCore.update(delta);
-			stage.act(delta);
-			stage.draw();
+
+			if (stage == null) {
+				Log.e("sss", "stage is null");
+			} else {
+
+				stage.act(delta);
+				stage.draw();
+			}
+
 			break;
 		case PAUSE:
 			stage.draw();

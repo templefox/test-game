@@ -1,5 +1,10 @@
 package com.subway.model;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +14,8 @@ import java.util.Observer;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.traverse.ClosestFirstIterator;
 
+import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 
 import com.badlogic.gdx.graphics.Color;
@@ -25,6 +32,17 @@ import com.subway.model.Station.Shape_type;
 import com.subway.model.Viehcle.ViehcleData;
 
 public abstract class Passenger implements Observer {
+	/*private static FileWriter writer;
+	static {
+		try {
+			File file = new File(Environment.getExternalStorageDirectory()+"/MMlog");
+			file.mkdir();
+			File file2 = File.createTempFile("MM_log", ".txt",file);
+			writer = new FileWriter(file2);
+		} catch (IOException e) {
+		}
+
+	}*/
 	public Image image;
 	protected Station currentStation;
 	protected LogicCore logicCore;
@@ -45,15 +63,17 @@ public abstract class Passenger implements Observer {
 		this.type = type;
 		image.setColor(Color.GRAY);
 		image.setOrigin(image.getWidth() / 2, image.getHeight() / 2);
-		
-		image.addAction(Actions.sequence(Actions.color(Color.RED, 80), new RunnableAction(){
 
-			@Override
-			public void run() {
-				logicCore.getGameMode().onPassagerRed(logicCore);
-			}}));
-		
-		image.addListener(new ClickListener(){
+		image.addAction(Actions.sequence(Actions.color(Color.RED, 80),
+				new RunnableAction() {
+
+					@Override
+					public void run() {
+						logicCore.getGameMode().onPassagerRed(logicCore);
+					}
+				}));
+
+		image.addListener(new ClickListener() {
 
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -61,22 +81,28 @@ public abstract class Passenger implements Observer {
 				if (!info.isAlive()) {
 					info.start();
 				}
-			}});
+			}
+		});
+		
 	}
-	
-	static class Info extends Thread{
+
+	static class Info extends Thread {
 		Passenger passenger;
 		static Info info = new Info();
+
 		private Info() {
 		}
-		public static Info instance(Passenger passenger){
-			 info.passenger = passenger;
-			 return info;
+
+		public static Info instance(Passenger passenger) {
+			info.passenger = passenger;
+			return info;
 		}
+
 		@Override
 		public void run() {
-			while (passenger!=null){
-				GameScreen.label.setText(String.valueOf(passenger.nextLinePart));
+			while (passenger != null) {
+				GameScreen.label
+						.setText(String.valueOf(passenger.nextLinePart));
 			}
 		}
 	}
@@ -102,6 +128,8 @@ public abstract class Passenger implements Observer {
 	public void update(Observable observable, Object data) {
 		Viehcle viehcle = (Viehcle) observable;
 		ViehcleData viehcleData = (ViehcleData) data;
+
+		
 		if (viehcle.contains(this)) {
 			// 在车上
 			// 1.达到目标车站
@@ -113,16 +141,21 @@ public abstract class Passenger implements Observer {
 				dealUnloadingPassenger(viehcle, viehcleData.current);
 				this.currentStation = viehcleData.current;
 				viehcleData.numToLoad++;
-			}else {
+			} else {
 				if (routineIterator.hasNext()) {
-					nextLinePart = routineIterator.next();					
+					nextLinePart = routineIterator.next();
 				}
 			}
 
-		} else if (true) {
+		} else {
 			// 在站上
+			//寻路
+			boolean needReInit = false;
 			if (routine.isEmpty() || isGraphChanged) {
 				List<LinePart> path = findDestination();
+				if (isGraphChanged) {
+					needReInit = true;
+				}
 				isGraphChanged = false;
 				if (path == null)
 					return;// 若不可能达到
@@ -133,25 +166,32 @@ public abstract class Passenger implements Observer {
 				}
 			}
 			// GameScreen.label.setText(String.valueOf(routine));
-			//检查车是否有空
+			// 检查车是否有空
 			if (!viehcle.hasEmptyPosition()) {
 				return;
 			}
-			
+
 			// 检查来车是否符合路径
 
 			if (nextLinePart != null || routineIterator.hasNext()) {
-				if (nextLinePart == null) {
+				if (nextLinePart == null||needReInit) {
 					nextLinePart = routineIterator.next();
 				}
 				if (nextLinePart.equals(viehcleData.linePart)) {
 					// GameScreen.label.setText("Try to up:"+String.valueOf(nextLinePart));
 					// synchronized (viehcle) {
+					LinePart lastLinePart = nextLinePart;
+					if (currentStation==null) {
+						return;
+					}
 					dealLoading(currentStation, viehcle);
 					viehcleData.numToLoad++;
 					// }
 					if (routineIterator.hasNext()) {
 						nextLinePart = routineIterator.next();
+						if(nextLinePart==lastLinePart){
+							System.out.println("fuck");
+						}
 					} else {
 						nextLinePart = null;
 					}
@@ -212,7 +252,7 @@ public abstract class Passenger implements Observer {
 
 	}
 
-	private void dealLoading(Station currentStation2, final Viehcle viehcle) {
+	private void dealLoading(final Station currentStation2, final Viehcle viehcle) {
 		new Thread(new Runnable() {
 
 			@Override
@@ -223,7 +263,7 @@ public abstract class Passenger implements Observer {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-					currentStation.byebyePassenger(Passenger.this);
+					currentStation2.byebyePassenger(Passenger.this);
 					currentStation = null;
 					viehcle.loadPassengers(Passenger.this);
 					try {
@@ -231,7 +271,6 @@ public abstract class Passenger implements Observer {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-
 				}
 			}
 		}).start();

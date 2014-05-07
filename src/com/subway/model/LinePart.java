@@ -22,7 +22,7 @@ public class LinePart extends DefaultWeightedEdge {
 	public Image image;
 	private float sinTheta;
 	private float cosTheta;
-	public static final int THICK = 18;
+	public static final float THICK = 8;
 
 	public LinePart(Line line, String name, LogicCore core, Station s1,
 			Station s2) throws CannotConnectException {
@@ -77,7 +77,7 @@ public class LinePart extends DefaultWeightedEdge {
 			}
 		}
 		
-		int thick = THICK / (sameEdges.size() + 1);
+		float thick = THICK / (sameEdges.size() + 1);
 
 		from = new PointF(s1.image.getX() + s1.image.getOriginX(),
 				s1.image.getY() + s1.image.getOriginY());
@@ -108,10 +108,10 @@ public class LinePart extends DefaultWeightedEdge {
 		image.setRotation(theta * 180 / MathUtils.PI);
 	}
 	
-	private void adjustPosition(Image image,int i,int thick){
-		image.setPosition(from.x - (THICK / 2 - thick * i) * sinTheta, from.y
-				+ (THICK / 2 - thick * i) * cosTheta);
-		image.setScaleY(thick);
+	private void adjustPosition(Image image,int i,float thick2){
+		image.setPosition(from.x - (THICK / 2 - thick2 * i) * sinTheta, from.y
+				+ (THICK / 2 - thick2 * i) * cosTheta);
+		image.setScaleY(thick2);
 	}
 
 	public float[] getStartPosition() {
@@ -176,7 +176,7 @@ public class LinePart extends DefaultWeightedEdge {
 		}
 
 		if (!sameEdges.isEmpty()) {
-			int thick = THICK / sameEdges.size();
+			float thick = THICK / sameEdges.size();
 			int i = 1;
 			for (LinePart linePart : sameEdges) {
 				adjustPosition(linePart.image, i, thick);

@@ -11,22 +11,25 @@ public class GameCenter extends Game {
 	public static TextureRegion[] passengers = new TextureRegion[5];
 	public static TextureRegion[] stations = new TextureRegion[5];
 	public static Texture viecleTexture;
-	public static final float SCREEN_HEIGHT = 480;
-	public static final float SCREEN_WIDTH  = 960;
+	public static final float SCREEN_HEIGHT = 540;
+	public static final float SCREEN_WIDTH = 960;
+	public static final float DENSITY = 1.5f;
 	private GameScreen gameScreen;
+
 	@Override
 	public void create() {
 		loadPics();
 		gameScreen = new GameScreen(this);
 		setScreen(gameScreen);
 	}
+
 	private void loadPics() {
 		Texture t = new Texture(Gdx.files.internal("images/colors.png"));
 		TextureRegion[][] colors = TextureRegion.split(t, 1, 1);
 		for (int i = 0; i < 9; i++) {
 			this.colors[i] = colors[0][i];
 		}
-		
+
 		Texture passengersTexture = new Texture(
 				Gdx.files.internal("images/passengers.png"));
 		TextureRegion textureRegion[][] = TextureRegion.split(
@@ -34,18 +37,21 @@ public class GameCenter extends Game {
 		for (int i = 0; i < 5; i++) {
 			this.passengers[i] = textureRegion[0][i];
 		}
-		
-		Texture stationTexture = new Texture(Gdx.files.internal("images/stations.png"));
-		TextureRegion stationsRegion[][] = TextureRegion.split(stationTexture, 64, 64);
+
+		Texture stationTexture = new Texture(
+				Gdx.files.internal("images/stations.png"));
+		TextureRegion stationsRegion[][] = TextureRegion.split(stationTexture,
+				64, 64);
 		for (int i = 0; i < 5; i++) {
-			stations[i]= stationsRegion[0][i]; 
+			stations[i] = stationsRegion[0][i];
 		}
-		
+
 		viecleTexture = new Texture(Gdx.files.internal("images/viehcle.png"));
 	}
+
 	@Override
 	public void render() {
-	
+
 		super.render();
 	}
 

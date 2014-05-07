@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import android.R.integer;
 
@@ -38,7 +39,8 @@ public abstract class Station {
 	protected Shape_type type;
 	private final static float pad = 2;
 	private List<Passenger> passengers = new ArrayList<Passenger>();
-
+	private ReentrantLock lock = new ReentrantLock();
+	
 	public static enum Shape_type {
 		circle, square, star, triangle, quinquangular
 	};
@@ -148,7 +150,9 @@ public abstract class Station {
 	public boolean byebyePassenger(Passenger passenger) {
 		passenger.image.remove();
 		boolean result= passengers.remove(passenger);
-		rePositonPassenger();
+		if (result) {
+			rePositonPassenger();			
+		}
 		return result;
 	}
 
@@ -168,5 +172,13 @@ public abstract class Station {
 					* offset, image.getY() - passenger.image.getHeight()
 					- (passenger.image.getHeight()+pad) * h);
 		}
+	}
+
+	public void lock() {
+		lock.lock();
+	}
+	
+	public void unlock() {
+		lock.unlock();
 	}
 }

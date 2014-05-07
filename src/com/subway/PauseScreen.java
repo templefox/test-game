@@ -30,11 +30,11 @@ public class PauseScreen implements Screen {
 	public PauseScreen(LogicCore logicCore, Stage old){
 		this.logicCore = logicCore;
 		oldStage = old;		
-		stage = new Stage(old.getWidth(),old.getHeight(),true,old.getSpriteBatch());
+		stage = new Stage(GameCenter.SCREEN_WIDTH,GameCenter.SCREEN_HEIGHT,true,old.getSpriteBatch());
 		
 		
 		Image image = new Image(GameCenter.colors[7]);
-		image.setBounds(30, 30, stage.getWidth()-60, stage.getHeight()-60);
+		image.setBounds(30, 30, GameCenter.SCREEN_WIDTH-60, GameCenter.SCREEN_HEIGHT-60);
 		Color color = image.getColor();
 		color.a = 0.9f;
 		image.setColor(color);

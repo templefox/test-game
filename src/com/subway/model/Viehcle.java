@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Observable;
 import java.util.TreeSet;
+import java.util.concurrent.locks.ReentrantLock;
 
 import android.R.integer;
 
@@ -104,14 +105,16 @@ public class Viehcle extends Observable {
 	}
 
 	public float dealPassengers(Station current, LinePart linePart, Station next) {
-		// 通则这个站的乘客
+		// 通知这个站的乘客和车上的乘客
 		deleteObservers();
-		for (Passenger passenger : current.getPassengers()) {
-			addObserver(passenger);
-		}
 		for (Passenger passenger : passengers) {
 			addObserver(passenger);
 		}
+		
+		for (Passenger passenger : current.getPassengers()) {
+			addObserver(passenger);
+		}
+		
 		data = new ViehcleData(current, linePart, next);
 		setChanged();
 		notifyObservers(data);
