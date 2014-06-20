@@ -15,4 +15,5 @@ public interface GameMode {
 	float genPassangerRate();
 	void update(float delta,LogicCore logicCore);
 	void onPassagerRed(LogicCore logicCore);
+	int getScore();
 }

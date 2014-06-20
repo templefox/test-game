@@ -16,11 +16,11 @@ public class MessageBoard implements Ui {
 
 	}
 
-	public void appendText(String text, int time) {
+	public void appendText(String text, long time) {
 		appendText(text, time,Color.BLACK);
 	}
 	
-	public void appendText(String text,int time,Color color){
+	public void appendText(String text,long time,Color color){
 		final Label label = new Label(text, GameScreen.skin);
 		label.setColor(color);
 		group.addActor(label);

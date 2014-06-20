@@ -6,9 +6,15 @@ import java.util.Set;
 import org.jgrapht.experimental.permutation.CollectionPermutationIter;
 import org.jgrapht.graph.WeightedMultigraph;
 
+import android.R.integer;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -79,23 +85,25 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 		return true;
 	}
 
-	private float update_count = 0;
-
-	public synchronized void update(float delta) {
+	private float updateCount = 0;
+	public void update(float delta) {
 		// 每次更新，每个车站有一定概率生成一个乘客
 		// 有一定概率生成一个新车站
 		gameMode.update(delta, this);
-		update_count += delta;
-		if (update_count < 8)
+		
+		if (updateCount<0.1) {
+			updateCount+=delta;
 			return;
-		else
-			update_count -=8;
-
+		}
+		
 		for (Station station : vertexSet()) {
 			Set<Shape_type> set = new HashSet<Station.Shape_type>(shape_types);
 			set.remove(station.getType());
 			station.generatePassenger(set.toArray(new Shape_type[] {}));
+			station.update(delta+updateCount);
 		}
+		
+		updateCount=0;
 	}
 
 	public void selectStation(final Station station) {
@@ -116,9 +124,8 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 				final Dialog dialog = new Dialog("a", GameScreen.skin);
 				dialog.setPosition(300, 300);
 
-				Button button = new Button(new TextureRegionDrawable(
-						GameCenter.passengers[1]), new TextureRegionDrawable(
-						GameCenter.passengers[2]));
+				TextButton button = new TextButton(" O.K. ",
+						GameScreen.skin);
 				button.setPosition(19, 19);
 				dialog.addActor(button);
 				button.addListener(new ClickListener() {
@@ -147,7 +154,7 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 					}
 				});
 
-				TextButton textButton = new TextButton("cancel",
+				TextButton textButton = new TextButton("Cancel",
 						GameScreen.skin);
 				textButton.setPosition(80, 19);
 				dialog.addActor(textButton);
@@ -221,17 +228,28 @@ public class LogicCore extends WeightedMultigraph<Station, LinePart> implements
 	}
 
 	public void setLose() {
+		int score = gameMode.getScore();
+		SharedPreferences sharedPreferences = gameCenter.getActivity().getSharedPreferences("score", Context.MODE_PRIVATE);
+		
+		int max = sharedPreferences.getInt("max", 0);
+		if (max<score) {			
+			Editor editor = sharedPreferences.edit();
+			editor.putInt("max", score);
+			editor.commit();
+		}
 		Screen screen = gameCenter.getScreen();
 		if (screen instanceof GameScreen) {
 			GameScreen gameScreen = (GameScreen)screen;
 			gameScreen.setState(GameScreen.Game_state.PAUSE);
-			//GameScreen.label.setText("=====YOU LOSE=======");
+			GameScreen.messageBoard.appendText("=====YOU====== Final Score:"+score, 1200);
+			GameScreen.messageBoard.appendText("=====LOSE====== Max Score:"+max, 1200);
 		}
 	}
 
 	public GameMode getGameMode() {
 		return gameMode;
 	}
+
 }
 
 /*

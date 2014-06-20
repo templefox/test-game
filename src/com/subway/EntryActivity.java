@@ -11,7 +11,7 @@ public class EntryActivity extends AndroidApplication{
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		gameCenter = new GameCenter();
+		gameCenter = new GameCenter(this);
 		initialize(gameCenter, true); 
 	}
 }

@@ -11,4 +11,5 @@ public class StarPassenger extends Passenger{
 		super(GameCenter.passengers[4], station,Shape_type.star,logicCore);
 		// TODO Auto-generated constructor stub
 	}
+	
 }

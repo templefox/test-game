@@ -1,7 +1,10 @@
 package com.subway;
 
+import android.app.Activity;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -15,12 +18,18 @@ public class GameCenter extends Game {
 	public static final float SCREEN_WIDTH = 960;
 	public static final float DENSITY = 1.5f;
 	private GameScreen gameScreen;
-
+	private Activity activity;
+	
+	public GameCenter(Activity activity) {
+		super();
+		this.activity = activity;
+	}
+	
 	@Override
 	public void create() {
 		loadPics();
-		gameScreen = new GameScreen(this);
-		setScreen(gameScreen);
+		MenuScreen menuScreen = new MenuScreen(this);
+		setScreen(menuScreen);
 	}
 
 	private void loadPics() {
@@ -55,4 +64,11 @@ public class GameCenter extends Game {
 		super.render();
 	}
 
+	public void setGameScreen(GameScreen gameScreen2) {
+		gameScreen =gameScreen2;
+	}
+
+	public Activity getActivity() {
+		return activity;
+	}
 }

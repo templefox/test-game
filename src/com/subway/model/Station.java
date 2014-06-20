@@ -35,10 +35,10 @@ public abstract class Station {
 	public Image image;
 	private final int MAX = 25;
 	private boolean isSelected = false;
-	private LogicCore logicCore;
+	protected LogicCore logicCore;
 	protected Shape_type type;
 	private final static float pad = 2;
-	private List<Passenger> passengers = new ArrayList<Passenger>();
+	protected List<Passenger> passengers = new ArrayList<Passenger>();
 	private ReentrantLock lock = new ReentrantLock();
 	
 	public static enum Shape_type {
@@ -180,5 +180,9 @@ public abstract class Station {
 	
 	public void unlock() {
 		lock.unlock();
+	}
+
+	public void update(float delta) {
+		
 	}
 }
